@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Romans Road / El Camino de Romanos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lora:ital,wght=0,500;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Lora', 'serif'],
+                        display: ['Cinzel', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --theme-bg: #121212;
+            --theme-surface: #1e1e1e;
+            --theme-text-main: #e0e0e0;
+            --theme-text-muted: #a0a0a0;
+            --theme-gold: #e5b842;
+            --theme-gold-dim: #bfa054;
+            --theme-border: #2d2d2d;
+            --theme-header-bg: rgba(18, 18, 18, 0.9);
+            --theme-pill-bg: rgba(229, 184, 66, 0.1);
+            --theme-input-bg: #121212;
+            --theme-btn-disabled: #2d2d2d;
+            --theme-btn-disabled-text: #555555;
+            --theme-inner-card: #121212;
+            --theme-dropdown-bg: #1e1e1e;
+        }
+
+        .light-theme {
+            --theme-bg: #fdfcfb;
+            --theme-surface: #ffffff;
+            --theme-text-main: #1a1a1a;
+            --theme-text-muted: #4a4a4a;
+            --theme-gold: #8f6b00; 
+            --theme-gold-dim: #6b5000;
+            --theme-border: #e2e8f0;
+            --theme-header-bg: rgba(253, 252, 251, 0.9);
+            --theme-pill-bg: rgba(143, 107, 0, 0.1);
+            --theme-input-bg: #f4f3f0;
+            --theme-btn-disabled: #e2e8f0;
+            --theme-btn-disabled-text: #8a8a8a;
+            --theme-inner-card: #f4f3f0;
+            --theme-dropdown-bg: #ffffff;
+        }
+
+        body {
+            background-color: var(--theme-bg);
+            color: var(--theme-text-main);
+        }
+        
+        .theme-transition {
+            transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .theme-transition { transition: none !important; }
+            .animate-fade-in { animation: none !important; }
+            html { scroll-behavior: auto !important; }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased theme-transition selection:bg-[var(--theme-gold)] selection:text-[var(--theme-bg)]">
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-[var(--theme-header-bg)] backdrop-blur-md border-b border-[var(--theme-border)] px-4 py-4 theme-transition">
+        <div class="max-w-2xl mx-auto space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="text-[var(--theme-gold)] text-lg theme-transition"><i class="fa-solid fa-cross"></i></span>
+                    <span class="font-display tracking-widest text-sm text-[var(--theme-text-main)] font-bold theme-transition">Romans Road</span>
+                </div>
+                
+                <!-- Interface Controls: Dropdown & Theme Toggle -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    
+                    <!-- Language Selection Dropdown -->
+                    <div class="relative inline-block text-left">
+                        <button id="lang-dropdown-btn" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-[var(--theme-gold)] bg-[var(--theme-gold)] text-[var(--theme-bg)] hover:brightness-110 text-xs font-bold tracking-wide transition-all focus:outline-none shadow-sm" aria-haspopup="true" aria-expanded="false">
+                            <span id="current-flag" class="flex items-center">
+                                <!-- US Minimalist SVG Flag with solid blue canton -->
+                                <svg class="w-5 h-3.5 rounded-sm inline-block mr-1 shadow-sm" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="20" height="14" fill="#FFFFFF"/>
+                                    <rect width="20" height="2" fill="#B22234"/>
+                                    <rect y="4" width="20" height="2" fill="#B22234"/>
+                                    <rect y="8" width="20" height="2" fill="#B22234"/>
+                                    <rect y="12" width="20" height="2" fill="#B22234"/>
+                                    <rect width="9" height="8" fill="#3C3B6E"/>
+                                </svg>
+                            </span>
+                            <span id="current-lang-label">English</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] opacity-80 mt-0.5"></i>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 rounded-xl border border-[var(--theme-gold)] bg-[var(--theme-dropdown-bg)] shadow-xl z-50 focus:outline-none overflow-hidden">
+                            <div class="py-1">
+                                <button data-lang="en" class="lang-opt w-full flex items-center space-x-2.5 px-4 py-2.5 text-xs font-semibold text-left text-[var(--theme-text-main)] hover:bg-[var(--theme-pill-bg)] transition-colors">
+                                    <span class="flex items-center">
+                                        <!-- US Minimalist SVG Flag -->
+                                        <svg class="w-5 h-3.5 rounded-sm inline-block shadow-sm" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect width="20" height="14" fill="#FFFFFF"/>
+                                            <rect width="20" height="2" fill="#B22234"/>
+                                            <rect y="4" width="20" height="2" fill="#B22234"/>
+                                            <rect y="8" width="20" height="2" fill="#B22234"/>
+                                            <rect y="12" width="20" height="2" fill="#B22234"/>
+                                            <rect width="9" height="8" fill="#3C3B6E"/>
+                                        </svg>
+                                    </span> 
+                                    <span>English</span>
+                                </button>
+                                <button data-lang="es" class="lang-opt w-full flex items-center space-x-2.5 px-4 py-2.5 text-xs font-semibold text-left text-[var(--theme-text-main)] hover:bg-[var(--theme-pill-bg)] transition-colors">
+                                    <span class="flex items-center">
+                                        <!-- MX Stylized SVG Flag -->
+                                        <svg class="w-5 h-3.5 rounded-sm inline-block shadow-sm" viewBox="0 0 30 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect width="10" height="21" fill="#006847"/>
+                                            <rect x="10" width="10" height="21" fill="#FFFFFF"/>
+                                            <rect x="20" width="10" height="21" fill="#C8102E"/>
+                                            <circle cx="15" cy="10.5" r="2" stroke="#8B5A2B" stroke-width="0.8" fill="none"/>
+                                            <path d="M14 11l1-1 1 1" stroke="#8B5A2B" stroke-width="0.6"/>
+                                        </svg>
+                                    </span> 
+                                    <span>Español</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Progress Text -->
+                    <div class="text-xs font-semibold text-[var(--theme-gold)] uppercase tracking-wider font-mono hidden md:inline-block theme-transition" id="progress-text" aria-live="polite">
+                        Progress: 0%
+                    </div>
+
+                    <!-- Theme Switcher -->
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--theme-pill-bg)] focus:outline-none text-[var(--theme-gold)] theme-transition" aria-label="Toggle Theme Layout">
+                        <i id="theme-icon" class="fa-solid fa-moon text-lg theme-transition"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="w-full bg-neutral-800/20 border border-[var(--theme-border)] h-1.5 rounded-full overflow-hidden theme-transition">
+                <div id="scroll-progress-bar" class="bg-[var(--theme-gold)] h-full w-0 transition-[width] duration-200 ease-out"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="max-w-2xl mx-auto px-5 py-12 md:py-16">
+        
+        <!-- Header View Title -->
+        <header class="text-center mb-16">
+            <h1 id="main-title" class="text-3xl md:text-4xl font-display text-[var(--theme-text-main)] font-bold tracking-tight theme-transition">
+                The Romans Road
+            </h1>
+            <div class="w-12 h-0.5 bg-[var(--theme-gold)] mx-auto mt-4 mb-4 theme-transition"></div>
+            <p id="hero-verse-text" class="text-sm md:text-base text-[var(--theme-text-muted)] font-serif italic max-w-lg mx-auto leading-relaxed theme-transition">
+                "For what saith the scripture? Abraham believed God, and it was counted unto him for righteousness."
+            </p>
+            <p id="hero-verse-ref" class="text-xs font-sans not-italic font-semibold text-[var(--theme-gold)] mt-2 theme-transition">— Romans 4:3</p>
+        </header>
+
+        <!-- Scriptural Road Roadmap Pathway -->
+        <div class="relative pl-8 md:pl-10">
+            <div class="absolute left-4 md:left-5 top-2 bottom-2 w-0.5 bg-[var(--theme-border)] theme-transition"></div>
+
+            <!-- PART 1 -->
+            <section class="relative mb-14 roadmap-stop" id="stop-1">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 1</span>
+                    <h2 id="t-h1" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">Man's Sinful Condition</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-310">"As it is written, There is none righteous, no, not one:"</span>
+                            <span id="r-310" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 3:10</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-323">"For all have sinned, and come short of the glory of God;"</span>
+                            <span id="r-323" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 3:23</span>
+                        </p>
+                    </div>
+                    <p id="t-p1" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                        According to those verses, everyone has sinned, which means that everyone has broken God's divine laws. Before one can receive salvation, they must admit that they are a sinner.
+                    </p>
+                </article>
+            </section>
+
+            <!-- PART 2 -->
+            <section class="relative mb-14 roadmap-stop" id="stop-2">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 2</span>
+                    <h2 id="t-h2" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">The Consequence of Sin</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-623">"For the wages of sin is death..."</span>
+                            <span id="r-623" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 6:23a</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-218">"But the fearful, and unbelieving, and the abominable, and murderers, and whoremongers, and sorcerers, and idolaters, and all liars, shall have their part in the lake which burneth with fire and brimstone: which is the Second Death."</span>
+                            <span id="r-218" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Revelation 21:8</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-1410">"The same shall drink of the wine of the wrath of God... and he shall be tormented with fire and brimstone... And the smoke of their torment ascendeth up for ever and ever: and they have no rest day nor night..."</span>
+                            <span id="r-1410" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Revelation 14:10-11</span>
+                        </p>
+                    </div>
+                    <p id="t-p2" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                        Because we are all sinners, we have earned a wage, that is, death. However, "death" is not just "lights out" as some would like to believe. Rather, death is when one's soul descends into Hell to be tormented. This torment lasts forever and ever, and the Bible says that all liars shall have their part in this torment.
+                    </p>
+                </article>
+            </section>
+
+            <!-- PART 3 -->
+            <section class="relative mb-14 roadmap-stop" id="stop-3">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 3</span>
+                    <h2 id="t-h3" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">Christ's Deity, Sacrifice & Resurrection</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-1j57">"For there are three that bear record in heaven, the Father, the Word, and the Holy Ghost: and these three are one."</span>
+                            <span id="r-1j57" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— 1 John 5:7</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-58">"But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."</span>
+                            <span id="r-58" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 5:8</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-153">"For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures:"</span>
+                            <span id="r-153" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— 1 Corinthians 15:3-4</span>
+                        </p>
+                    </div>
+                    <!-- Human Made Split Explanations -->
+                    <div class="space-y-3">
+                        <p id="t-p3a" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                            Even though we are sinners worthy of Hellfire, God still loves us. However, in order to understand this, you must understand what is commonly referred to as the "Trinity." Jesus Christ himself is God made manifest in the flesh, but is also God's son at the same time. How can this be? There is one Godhead that is made up of three distinct beings; the Father, the Son, and the Holy Spirit. They are three different persons, but are one God.
+                        </p>
+                        <p id="t-p3b" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                            So, he sent his one and only son, the Lord Jesus Christ, to die on the cross for our sins. When the Son, Jesus Christ, died on the cross, he took all of the sins of the whole world upon himself as if he had done it. Every lie, murder, and cheat. On the third day, however, he rose again out of the grave and defeated death.
+                        </p>
+                    </div>
+                </article>
+            </section>
+
+            <!-- PART 4 -->
+            <section class="relative mb-14 roadmap-stop" id="stop-4">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 4</span>
+                    <h2 id="t-h4" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">Received By Faith Alone</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-28">"For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast."</span>
+                            <span id="r-28" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Ephesians 2:8-9</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-45">"But to him that worketh not, but believeth on him that justifieth the ungodly, his faith is counted for righteousness."</span>
+                            <span id="r-45" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 4:5</span>
+                        </p>
+                    </div>
+                    <p id="t-p4" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                        Salvation is a free gift. Now that you understand how the gift was purchased, you can understand how to receive it. According to the Bible, all you need to do is believe on Jesus to be saved; nothing more, nothing left. You do not need to go to church every Sunday, be baptized, turn from/repent of your sins, or become a good person. The free gift of eternal life is just that---free. It cannot be earned by good works whatsoever. If you have 99% of your trust in what Jesus did on the cross to save you, but 1% of trust in yourself, then you are not saved. You must lean entirely on Jesus Christ to save you, not yourself.
+                    </p>
+                </article>
+            </section>
+
+            <!-- PART 5 -->
+            <section class="relative mb-14 roadmap-stop" id="stop-5">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 5</span>
+                    <h2 id="t-h5" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">Calling On The Lord</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-109">"That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved. For with the heart man believeth unto righteousness; and with the mouth confession is made unto salvation."</span>
+                            <span id="r-109" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 10:9-10</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-1013">"For whosoever shall call upon the name of the Lord shall be saved."</span>
+                            <span id="r-1013" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Romans 10:13</span>
+                        </p>
+                    </div>
+                    <p id="t-p5" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                        The Bible gives us clear instructions on how to put our trust in Jesus Christ. First, you must believe in the Gospel. That is the death, burial, and resurrection of Jesus Christ. Secondly, you must confess Jesus, which simply means to call upon him and ask him to save you. If you were in the water drowning, and you saw someone walking by the water, what would you do? You would call out to him, of course! If you do that, then Jesus Christ will surely save you.
+                    </p>
+                </article>
+            </section>
+
+            <!-- PART 6 -->
+            <section class="relative mb-8 roadmap-stop" id="stop-6">
+                <div class="absolute -left-10 md:-left-11 top-1.5 w-5 h-5 rounded-full bg-[var(--theme-bg)] border-2 border-[var(--theme-gold)] flex items-center justify-center theme-transition">
+                    <div class="w-2 h-2 rounded-full bg-[var(--theme-gold)] theme-transition"></div>
+                </div>
+                <article class="space-y-3">
+                    <span data-label="part" class="text-xs font-bold text-[var(--theme-gold)] uppercase tracking-wider font-mono theme-transition">Part 6</span>
+                    <h2 id="t-h6" class="text-lg md:text-xl font-semibold text-[var(--theme-text-main)] theme-transition">Permanently Preserved</h2>
+                    <div class="font-serif italic text-[var(--theme-text-main)] text-md md:text-lg border-l-2 border-[var(--theme-gold)] pl-4 py-1 my-3 space-y-3 theme-transition">
+                        <p class="leading-relaxed">
+                            <span id="v-1028">"And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand."</span>
+                            <span id="r-1028" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— John 10:28</span>
+                        </p>
+                        <p class="leading-relaxed">
+                            <span id="v-11">"In hope of eternal life, which God, that cannot lie, promised before the world began;"</span>
+                            <span id="r-11" class="block text-xs font-sans not-italic font-semibold text-[var(--theme-gold-dim)] mt-1 theme-transition">— Titus 1:2</span>
+                        </p>
+                    </div>
+                    <p id="t-p6" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed theme-transition">
+                        Once you have believed in and called upon Jesus Christ to be your personal saviour, there is absolutely nothing that can separate you from him. Once you are saved, you are always saved. The Bible says that if you believe on Jesus, you are completely sealed and can never die or lose the free gift of eternal life that God has given you. Since God has already promised the saved eternal life before the world began, he could not ever break that promise or go back on it, otherwise, he would be a liar (which cannot be the case according to Titus 1:2).
+                    </p>
+                </article>
+            </section>
+        </div>
+
+        <!-- Invitation Container Frame -->
+        <section id="decision-panel" class="bg-[var(--theme-surface)] border border-[var(--theme-border)] rounded-2xl p-6 md:p-8 mt-16 text-center theme-transition">
+            <div id="checklist-form" class="space-y-6">
+                <div>
+                    <span id="t-badge" class="inline-block px-3 py-1 bg-[var(--theme-pill-bg)] text-xs font-bold text-[var(--theme-gold)] tracking-wider uppercase rounded-full mb-3 font-mono theme-transition">Invitation</span>
+                    <h2 id="t-invite-title" class="text-xl md:text-2xl font-display font-semibold text-[var(--theme-text-main)] mb-4 theme-transition">Have You Trusted Christ?</h2>
+                    <p id="t-invite-desc" class="text-xs md:text-sm text-[var(--theme-text-muted)] leading-relaxed font-serif max-w-md mx-auto theme-transition">
+                        Do you realize that you are a sinner worthy of Hell, and do you believe that Jesus Christ died on the cross as a payment for your sins, and rose again three days later? If that is the case, please check the three boxes and see how you can receive the free gift of eternal life right now!
+                    </p>
+                </div>
+
+                <!-- Self-Examination Checklist (Exactly 3 items) -->
+                <fieldset class="bg-[var(--theme-input-bg)] p-4 rounded-xl border border-[var(--theme-border)] text-left max-w-md mx-auto space-y-3 theme-transition">
+                    <legend class="sr-only">Checklist</legend>
+                    <label class="flex items-start space-x-3 text-xs md:text-sm text-[var(--theme-text-main)] cursor-pointer select-none">
+                        <input type="checkbox" class="assurance-checkbox bg-[var(--theme-bg)] rounded border-[var(--theme-border)] h-4 w-4 mt-0.5 accent-[var(--theme-gold)]">
+                        <span id="t-check1">I acknowledge that I am a sinner.</span>
+                    </label>
+                    <label class="flex items-start space-x-3 text-xs md:text-sm text-[var(--theme-text-main)] cursor-pointer select-none">
+                        <input type="checkbox" class="assurance-checkbox bg-[var(--theme-bg)] rounded border-[var(--theme-border)] h-4 w-4 mt-0.5 accent-[var(--theme-gold)]">
+                        <span id="t-check2">I understand the wage of sin is death in Hell.</span>
+                    </label>
+                    <label class="flex items-start space-x-3 text-xs md:text-sm text-[var(--theme-text-main)] cursor-pointer select-none">
+                        <input type="checkbox" class="assurance-checkbox bg-[var(--theme-bg)] rounded border-[var(--theme-border)] h-4 w-4 mt-0.5 accent-[var(--theme-gold)]">
+                        <span id="t-check3">I believe Jesus shed His blood, died, and rose again.</span>
+                    </label>
+                </fieldset>
+
+                <!-- Prayer Guide Frame -->
+                <div id="prayer-guide" class="hidden text-left bg-[var(--theme-inner-card)] border border border-[var(--theme-gold)]/30 rounded-xl p-5 max-w-md mx-auto theme-transition">
+                    <p id="t-pray-warn" class="text-xs text-[var(--theme-text-muted)] italic mb-2 theme-transition">
+                        It is not a magic formula or physical words that save you—it is your faith in the Lord Jesus Christ. If you want to call on Him, you can pray this sincerely from your heart:
+                    </p>
+                    <p id="t-pray-text" class="text-[var(--theme-text-main)] text-xs md:text-sm font-serif italic border-l-2 border-[var(--theme-gold)] pl-3 py-0.5 theme-transition">
+                        "Dear Lord Jesus, I know that I am a sinner, and I know that I deserve to go to Hell because of my sins. But I believe you died on the cross for me, shed your blood, and rose again on the third day. Please save me right now, forgive my sins, and give me the free gift of eternal life. I am trusting only in you, not in my works. Thank you for saving me. Amen."
+                    </p>
+                </div>
+
+                <button id="cta-btn" disabled class="w-full max-w-md py-3 px-6 bg-[var(--theme-btn-disabled)] text-[var(--theme-btn-disabled-text)] font-bold text-xs md:text-sm rounded-xl tracking-wider uppercase transition-all duration-150 cursor-not-allowed">
+                    Complete Checklist to Settle Your Eternity
+                </button>
+            </div>
+
+            <!-- Success Outcome View Layout -->
+            <div id="success-outcome" class="hidden py-6 space-y-4 animate-fade-in" tabindex="-1">
+                <i class="fa-solid fa-circle-check text-4xl text-[var(--theme-gold)] mb-3"></i>
+                <h3 id="t-succ-title" class="text-lg font-display font-semibold text-[var(--theme-text-main)]">Praise the Lord!</h3>
+                <p id="t-succ-verse" class="text-xs md:text-sm text-[var(--theme-text-main)] leading-relaxed max-w-sm mx-auto font-serif">
+                    "Verily, verily, I say unto you, He that heareth my word, and believeth on him that sent me, hath everlasting life, and shall not come into condemnation; but is passed from death unto life." — John 5:24
+                </p>
+                <div class="text-left bg-[var(--theme-bg)] border border-[var(--theme-border)] p-4 rounded-xl max-w-sm mx-auto text-xs space-y-1">
+                    <span id="t-succ-next" class="font-bold text-[var(--theme-gold)] uppercase block mb-1">Your Next Scriptural Steps:</span>
+                    <ul class="list-disc pl-4 space-y-1 text-[var(--theme-text-muted)]">
+                        <li id="t-step1">Read the King James Bible daily (Start in John).</li>
+                        <li id="t-step2">Talk to God in sincere prayer every day.</li>
+                        <li id="t-step3">Find a sound, soul-winning local Baptist church.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[var(--theme-surface)] border-t border-[var(--theme-border)] py-10 px-4 text-center text-xs text-[var(--theme-text-muted)] theme-transition">
+        <p id="t-foot-verse" class="mb-1">"But the word of the Lord endureth for ever." — 1 Peter 1:25</p>
+        <p id="t-foot-copy" class="font-semibold text-[var(--theme-text-main)]">Romans Road &copy; 2026. Authorized King James Version (KJV).</p>
+    </footer>
+
+    <!-- Interactive Multilingual UI Engine -->
+    <script>
+        // High-Fidelity Custom SVG Flags (Guarantees seamless cross-platform rendering)
+        // Clean US flag with solid blue canton (no stars)
+        const usFlagSvg = `<svg class="w-5 h-3.5 rounded-sm inline-block mr-1.5 shadow-sm" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="14" fill="#FFFFFF"/><rect width="20" height="2" fill="#B22234"/><rect y="4" width="20" height="2" fill="#B22234"/><rect y="8" width="20" height="2" fill="#B22234"/><rect y="12" width="20" height="2" fill="#B22234"/><rect width="9" height="8" fill="#3C3B6E"/></svg>`;
+        // Clean Mexico flag with simple center emblem
+        const mxFlagSvg = `<svg class="w-5 h-3.5 rounded-sm inline-block mr-1.5 shadow-sm" viewBox="0 0 30 21" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="10" height="21" fill="#006847"/><rect x="10" width="10" height="21" fill="#FFFFFF"/><rect x="20" width="10" height="21" fill="#C8102E"/><circle cx="15" cy="10.5" r="2" stroke="#8B5A2B" stroke-width="0.8" fill="none"/><path d="M14 11l1-1 1 1" stroke="#8B5A2B" stroke-width="0.6"/></svg>`;
+
+        // Language Database Matrix (KJV vs RVG 2010 + Localization)
+        const translations = {
+            en: {
+                label: "English",
+                mainTitle: "The Romans Road",
+                heroText: '"For what saith the scripture? Abraham believed God, and it was counted unto him for righteousness."',
+                heroRef: "— Romans 4:3",
+                part: "Part",
+                h1: "Man's Sinful Condition",
+                p1: "According to those verses, everyone has sinned, which means that everyone has broken God's divine laws. Before one can receive salvation, they must admit that they are a sinner.",
+                h2: "The Consequence of Sin",
+                p2: "Because we are all sinners, we have earned a wage, that is, death. However, \"death\" is not just \"lights out\" as some would like to believe. Rather, death is when one's soul descends into Hell to be tormented. This torment lasts forever and ever, and the Bible says that all liars shall have their part in this torment.",
+                h3: "Christ's Deity, Sacrifice & Resurrection",
+                p3a: "Even though we are sinners worthy of Hellfire, God still loves us. However, in order to understand this, you must understand what is commonly referred to as the \"Trinity.\" Jesus Christ himself is God made manifest in the flesh, but is also God's son at the same time. How can this be? There is one Godhead that is made up of three distinct beings; the Father, the Son, and the Holy Spirit. They are three different persons, but are one God.",
+                p3b: "So, he sent his one and only son, the Lord Jesus Christ, to die on the cross for our sins. When the Son, Jesus Christ, died on the cross, he took all of the sins of the whole world upon himself as if he had done it. Every lie, murder, and cheat. On the third day, however, he rose again out of the grave and defeated death.",
+                h4: "Received By Faith Alone",
+                p4: "Salvation is a free gift. Now that you understand how the gift was purchased, you can understand how to receive it. According to the Bible, all you need to do is believe on Jesus to be saved; nothing more, nothing left. You do not need to go to church every Sunday, be baptized, turn from/repent of your sins, or become a good person. The free gift of eternal life is just that---free. It cannot be earned by good works whatsoever. If you have 99% of your trust in what Jesus did on the cross to save you, but 1% of trust in yourself, then you are not saved. You must lean entirely on Jesus Christ to save you, not yourself.",
+                h5: "Calling On The Lord",
+                p5: "The Bible gives us clear instructions on how to put our trust in Jesus Christ. First, you must believe in the Gospel. That is the death, burial, and resurrection of Jesus Christ. Secondly, you must confess Jesus, which simply means to call upon him and ask him to save you. If you were in the water drowning, and you saw someone walking by the water, what would you do? You would call out to him, of course! If you do that, then Jesus Christ will surely save you.",
+                h6: "Permanently Preserved",
+                p6: "Once you have believed in and called upon Jesus Christ to be your personal saviour, there is absolutely nothing that can separate you from him. Once you are saved, you are always saved. The Bible says that if you believe on Jesus, you are completely sealed and can never die or lose the free gift of eternal life that God has given you. Since God has already promised the saved eternal life before the world began, he could not ever break that promise or go back on it, otherwise, he would be a liar (which cannot be the case according to Titus 1:2).",
+                badge: "Invitation",
+                inviteTitle: "Have You Trusted Christ?",
+                inviteDesc: "Do you realize that you are a sinner worthy of Hell, and do you believe that Jesus Christ died on the cross as a payment for your sins, and rose again three days later? If that is the case, please check the three boxes and see how you can receive the free gift of eternal life right now!",
+                check1: "I acknowledge that I am a sinner.",
+                check2: "I understand the wage of sin is death in Hell.",
+                check3: "I believe Jesus shed His blood, died, and rose again.",
+                prayWarn: "It is not a magic formula or physical words that save you—it is your faith in the Lord Jesus Christ. If you want to call on Him, you can pray this sincerely from your heart:",
+                prayText: '"Dear Lord Jesus, I know that I am a sinner, and I know that I deserve to go to Hell because of my sins. But I believe you died on the cross for me, shed your blood, and rose again on the third day. Please save me right now, forgive my sins, and give me the free gift of eternal life. I am trusting only in you, not in my works. Thank you for saving me. Amen."',
+                btnReady: "I Have Sincere Faith in Jesus",
+                btnWait: "Complete Checklist to Settle Your Eternity",
+                succTitle: "Praise the Lord!",
+                succVerse: '"Verily, verily, I say unto you, He that heareth my word, and believeth on him that sent me, hath everlasting life, and shall not come into condemnation; but is passed from death unto life." — John 5:24',
+                succNext: "Your Next Scriptural Steps:",
+                step1: "Read the King James Bible daily (Start in John).",
+                step2: "Talk to God in sincere prayer every day.",
+                step3: "Find a sound, soul-winning local Baptist church.",
+                footVerse: '"But the word of the Lord endureth for ever." — 1 Peter 1:25',
+                footCopy: "Romans Road &copy; 2026. Authorized King James Version (KJV).",
+                verses: {
+                    v1j57: '"For there are three that bear record in heaven, the Father, the Word, and the Holy Ghost: and these three are one."',
+                    v310: '"As it is written, There is none righteous, no, not one:"',
+                    v323: '"For all have sinned, and come short of the glory of God;"',
+                    v623: '"For the wages of sin is death..."',
+                    v218: '"But the fearful, and unbelieving, and the abominable, and murderers, and whoremongers, and sorcerers, and idolaters, and all liars, shall have their part in the lake which burneth with fire and brimstone: which is the Second Death."',
+                    v1410: '"The same shall drink of the wine of the wrath of God... and he shall be tormented with fire and brimstone... And the smoke of their torment ascendeth up for ever and ever: and they have no rest day nor night..."',
+                    v58: '"But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."',
+                    v153: '"For I delivered unto you first of all that which I also received, how that Christ died for our sins according to the scriptures; And that he was buried, and that he rose again the third day according to the scriptures:"',
+                    v28: '"For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast."',
+                    v45: '"But to him that worketh not, but believeth on him that justifieth the ungodly, his faith is counted for righteousness."',
+                    v109: '"That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved. For with the heart man believeth unto righteousness; and with the mouth confession is made unto salvation."',
+                    v1013: '"For whosoever shall call upon the name of the Lord shall be saved."',
+                    v1028: '"And I give unto them eternal life; and they shall never perish, neither shall any man pluck them out of my hand."',
+                    v11: '"In hope of eternal life, which God, that cannot lie, promised before the world began;"'
+                },
+                // Exact citation translations 
+                refs: {
+                    r310: "— Romans 3:10",
+                    r323: "— Romans 3:23",
+                    r623: "— Romans 6:23a",
+                    r218: "— Revelation 21:8",
+                    r1410: "— Revelation 14:10-11",
+                    r1j57: "— 1 John 5:7",
+                    r58: "— Romans 5:8",
+                    r153: "— 1 Corinthians 15:3-4",
+                    r28: "— Ephesians 2:8-9",
+                    r45: "— Romans 4:5",
+                    r109: "— Romans 10:9-10",
+                    r1013: "— Romans 10:13",
+                    r1028: "— John 10:28",
+                    r11: "— Titus 1:2"
+                }
+            },
+            es: {
+                label: "Español",
+                mainTitle: "El Camino de Romanos",
+                heroText: '"Porque ¿qué dice la Escritura? Y creyó Abraham a Dios, y le fue contado por justicia."',
+                heroRef: "— Romanos 4:3",
+                part: "Parte",
+                h1: "La Condición Pecadora del Hombre",
+                p1: "Según esos versículos, todos han pecado, lo que significa que todos han quebrantado las leyes divinas de Dios. Antes de que uno pueda recibir la salvación, debe admitir que es un pecador.",
+                h2: "La Consecuencia del Pecado",
+                p2: "Como todos somos pecadores, nos hemos ganado una paga, es decir, la muerte. Sin embargo, la \"muerte\" no es sólo \"apagar las luces\" como a algunos les gustaría creer. Más bien, la muerte es cuando el alma desciende al Infierno para ser atormentada. Este tormento dura por los siglos de los siglos, y la Biblia dice que todos los mentirosos tendrán su parte en este tormento.",
+                h3: "Deidad, Sacrificio y Resurrección de Cristo",
+                p3a: "Aunque somos pecadores dignos del fuego del Infierno, Dios todavía nos ama. Sin embargo, para entender esto, debes entender lo que comúnmente se conoce como la \"Trinidad\". Jesucristo mismo es Dios manifestado en la carne, pero al mismo tiempo es el Hijo de Dios. ¿Cómo puede ser esto? Hay una sola Deidad que está compuesta por tres seres distintos: el Padre, el Hijo y el Espíritu Santo. Son tres personas diferentes, pero son un solo Dios.",
+                p3b: "Por lo tanto, envió a su único Hijo, el Señor Jesucristo, a morir en la cruz por nuestros pecados. Cuando el Hijo, Jesucristo, murió en la cruz, tomó sobre sí todos los pecados de todo el mundo como si él lo hubiera hecho. Cada mentira, asesinato y engaño. Al tercer día, sin embargo, resucitó de la tumba y venció a la muerte.",
+                h4: "Recibido Solo por la Fe",
+                p4: "La salvación es un regalo gratuito. Ahora que entiendes cómo se compró el regalo, puedes entender cómo recibirlo. Según la Biblia, todo lo que necesitas hacer es creer en Jesús para ser salvo; nada más, nada menos. No necesitas ir a la iglesia todos los domingos, ser bautizado, apartarte/arrepentirte de tus pecados o convertirte en una buena persona. El regalo gratuito de la vida eterna es precisamente eso: gratuito. No se puede ganar mediante buenas obras en absoluto. Si tienes el 99% de tu confianza en lo que Jesús hizo en la cruz para salvarte, pero el 1% de confianza en ti mismo, entonces no eres salvo. Debes apoyarte por completo en Jesucristo para salvarte, no en ti mismo.",
+                h5: "Invocando al Señor",
+                p5: "La Biblia nos da instrucciones claras sobre cómo poner nuestra confianza en Jesucristo. Primero, debes creer en el Evangelio. Eso es la muerte, sepultura y resurcción de Jesucristo. En segundo lugar, debes confesar a Jesús, lo que simplemente significa invocarlo y pedirle que te salve. Si te estuvieras ahogando en el agua y vieras a alguien caminando junto al agua, ¿qué harías? ¡Le gritarías que te ayudara, por supuesto! Si haces eso, entonces Jesucristo seguramente te salvará.",
+                h6: "Preservado Permanentemente",
+                p6: "Una vez que has creído e invocado a Jesucristo para que sea tu salvador personal, no hay absolutamente nada que pueda separarte de él. Una vez salvo, siempre salvo. La Biblia dice que si crees en Jesús, estás completamente sellado y nunca podrás morir ni perder el regalo gratuito de la vida eterna que Dios te ha dado. Dado que Dios ya prometió la vida eterna a los salvos antes de que el mundo comenzara, nunca podría romper esa promesa o retractarse de ella; de lo contrario, sería un mentiroso (lo cual no puede ser el caso según Tito 1:2).",
+                badge: "Invitación",
+                inviteTitle: "¿Has Confiado en Cristo?",
+                inviteDesc: "¿Te das cuenta de que eres un pecador digno del Infierno, y crees que Jesucristo murió en la cruz como pago por tus pecados, y resucitó tres días después? Si ese es el caso, ¡por favor marca las tres casillas y mira cómo puedes recibir el regalo gratuito de la vida eterna ahora mismo!",
+                check1: "Reconozco que soy un pecador.",
+                check2: "Entiendo que la paga del pecado es muerte en el Infierno.",
+                check3: "Creo que Jesús derramó Su sangre, murió y resucitó.",
+                prayWarn: "No es una fórmula mágica ni las palabras físicas lo que te salva, sino tu fe en el Señor Jesucristo. Si quieres invocarlo, puedes orar esto sinceramente de corazón:",
+                prayText: '"Querido Señor Jesús, sé que soy un pecador y sé que merezco ir al Infierno por mis pecados. Pero creo que moriste en la cruz por mí, derramaste tu sangre y resucitaste al tercer día. Por favor, sálvame ahora mismo, perdona mis pecados y dime el regalo gratuito de la vida eterna. Estoy confiando únicamente en ti, no en mi obras. Gracias por salvarme. Amen."',
+                btnReady: "Tengo Fe Sincera en Jesús",
+                btnWait: "Completa el Listado para Asegurar tu Eternidad",
+                succTitle: "¡Gloria al Señor!",
+                succVerse: '"De cierto, de cierto os digo: El que oye mi palabra, y cree al que me envió, tiene vida eterna; y no vendrá a condenación, mas pasó de muerte a vida." — Juan 5:24',
+                succNext: "Tus Siguientes Pasos Escriturales:",
+                step1: "Lee la Biblia Reina Valera Gómez diariamente (Comienza en Juan).",
+                step2: "Habla con Dios en oración sincera todos los días.",
+                step3: "Busca una iglesia Bautista fiel y ganadora de almas.",
+                footVerse: '"Mas la palabra del Señor permanece para siempre." — 1 Pedro 1:25',
+                footCopy: "Romans Road &copy; 2026. Reina Valera Gómez 2010 (RVG).",
+                verses: {
+                    v1j57: '"Porque tres son los que dan testimonio en el cielo: el Padre, la Palabra y el Espíritu Santo; y estos tres son uno."',
+                    v310: '"Como está escrito: No hay justo, ni aun uno;"',
+                    v323: '"Por cuanto todos pecaron, y están destituidos de la gloria de Dios;"',
+                    v623: '"Porque la paga del pecado es muerte..."',
+                    v218: '"Pero los temerosos e incrédulos, los abominables y homicidas, los fornicarios y hechiceros, los idólatras y todos los mentirosos, tendrán su parte en el lago que arde con fuego y azufre, que es la muerte segunda."',
+                    v1410: '"él también beberá del vino de la ira de Dios... y será atormentado con fuego y azufre... Y el humo del tormento de ellos sube para siempre jamás. Y no tienen reposo de día ni de noche..."',
+                    v58: '"Mas Dios encarece su amor para con nosotros, en que siendo aún pecadores, Cristo murió por nosotros."',
+                    v153: '"Porque primeramente os he entregado lo que asimismo recibí: Que Cristo murió por nuestros pecados, conforme a las Escrituras; y que fue sepultado, y que resucitó al tercer día, conforme a las Escrituras;"',
+                    v28: '"Porque por gracia sois salvos por medio de la fe; y esto no de vosotros, pues es el don de Dios; no por obras, para que nadie se gloríe."',
+                    v45: '"Mas al que no obra, sino cree en aquél que justifica al impío, su fe le es contada por justicia."',
+                    v109: '"Que si confesares con tu boca al Señor Jesús, y creyeres en tu corazón que Dios le levantó de los muertos, serás salvo. Porque con el corazón se cree para justicia; mas con la boca se hace confesión para salvación."',
+                    v1013: '"Porque todo aquel que invocare el nombre del Señor, será salvo."',
+                    v1028: '"Y yo les doy vida eterna; y no perecerán para siempre, ni nadie las arrebatará de mi mano."',
+                    v11: '"En la esperanza de la vida eterna, la cual Dios, que no puede mentir, prometió antes del principio del mundo;"'
+                },
+                // Exact Spanish translation of citation names
+                refs: {
+                    r310: "— Romanos 3:10",
+                    r323: "— Romanos 3:23",
+                    r623: "— Romanos 6:23a",
+                    r218: "— Apocalipsis 21:8",
+                    r1410: "— Apocalipsis 14:10-11",
+                    r1j57: "— 1 Juan 5:7",
+                    r58: "— Romanos 5:8",
+                    r153: "— 1 Corintios 15:3-4",
+                    r28: "— Efesios 2:8-9",
+                    r45: "— Romanos 4:5",
+                    r109: "— Romanos 10:9-10",
+                    r1013: "— Romanos 10:13",
+                    r1028: "— Juan 10:28",
+                    r11: "— Tito 1:2"
+                }
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            const dropdownBtn = document.getElementById('lang-dropdown-btn');
+            const dropdownMenu = document.getElementById('lang-dropdown-menu');
+            const currentFlag = document.getElementById('current-flag');
+            const currentLangLabel = document.getElementById('current-lang-label');
+            const checkboxes = document.querySelectorAll('.assurance-checkbox');
+            const ctaBtn = document.getElementById('cta-btn');
+
+            let currentLang = localStorage.getItem('romans-road-lang') || 'en';
+
+            // --- Language Switch Engine Function ---
+            function applyLanguage(lang) {
+                const data = translations[lang];
+                
+                // Swap inline SVGs accurately
+                currentFlag.innerHTML = lang === 'en' ? usFlagSvg : mxFlagSvg;
+                currentLangLabel.innerText = data.label;
+                
+                // Content updates
+                document.getElementById('main-title').innerText = data.mainTitle;
+                document.getElementById('hero-verse-text').innerText = data.heroText;
+                document.getElementById('hero-verse-ref').innerText = data.heroRef;
+                
+                document.getElementById('t-h1').innerText = data.h1;
+                document.getElementById('t-p1').innerText = data.p1;
+                document.getElementById('t-h2').innerText = data.h2;
+                document.getElementById('t-p2').innerText = data.p2;
+                document.getElementById('t-h3').innerText = data.h3;
+                document.getElementById('t-p3a').innerText = data.p3a;
+                document.getElementById('t-p3b').innerText = data.p3b;
+                document.getElementById('t-h4').innerText = data.h4;
+                document.getElementById('t-p4').innerText = data.p4;
+                document.getElementById('t-h5').innerText = data.h5;
+                document.getElementById('t-p5').innerText = data.p5;
+                document.getElementById('t-h6').innerText = data.h6;
+                document.getElementById('t-p6').innerText = data.p6;
+
+                document.querySelectorAll('[data-label="part"]').forEach((el, index) => {
+                    el.innerText = `${data.part} ${index + 1}`;
+                });
+
+                // Scripture verses translations
+                document.getElementById('v-1j57').innerText = data.verses.v1j57;
+                document.getElementById('v-310').innerText = data.verses.v310;
+                document.getElementById('v-323').innerText = data.verses.v323;
+                document.getElementById('v-623').innerText = data.verses.v623;
+                document.getElementById('v-218').innerText = data.verses.v218;
+                document.getElementById('v-1410').innerText = data.verses.v1410;
+                document.getElementById('v-58').innerText = data.verses.v58;
+                document.getElementById('v-153').innerText = data.verses.v153;
+                document.getElementById('v-28').innerText = data.verses.v28;
+                document.getElementById('v-45').innerText = data.verses.v45;
+                document.getElementById('v-109').innerText = data.verses.v109;
+                document.getElementById('v-1013').innerText = data.verses.v1013;
+                document.getElementById('v-1028').innerText = data.verses.v1028;
+                document.getElementById('v-11').innerText = data.verses.v11;
+
+                // Scripture citation references translations
+                document.getElementById('r-1j57').innerText = data.refs.r1j57;
+                document.getElementById('r-310').innerText = data.refs.r310;
+                document.getElementById('r-323').innerText = data.refs.r323;
+                document.getElementById('r-623').innerText = data.refs.r623;
+                document.getElementById('r-218').innerText = data.refs.r218;
+                document.getElementById('r-1410').innerText = data.refs.r1410;
+                document.getElementById('r-58').innerText = data.refs.r58;
+                document.getElementById('r-153').innerText = data.refs.r153;
+                document.getElementById('r-28').innerText = data.refs.r28;
+                document.getElementById('r-45').innerText = data.refs.r45;
+                document.getElementById('r-109').innerText = data.refs.r109;
+                document.getElementById('r-1013').innerText = data.refs.r1013;
+                document.getElementById('r-1028').innerText = data.refs.r1028;
+                document.getElementById('r-11').innerText = data.refs.r11;
+
+                // Invitation fields
+                document.getElementById('t-badge').innerText = data.badge;
+                document.getElementById('t-invite-title').innerText = data.inviteTitle;
+                document.getElementById('t-invite-desc').innerText = data.inviteDesc;
+                document.getElementById('t-check1').innerText = data.check1;
+                document.getElementById('t-check2').innerText = data.check2;
+                document.getElementById('t-check3').innerText = data.check3;
+                document.getElementById('t-pray-warn').innerText = data.prayWarn;
+                document.getElementById('t-pray-text').innerText = data.prayText;
+                
+                document.getElementById('t-succ-title').innerText = data.succTitle;
+                document.getElementById('t-succ-verse').innerText = data.succVerse;
+                document.getElementById('t-succ-next').innerText = data.succNext;
+                document.getElementById('t-step1').innerText = data.step1;
+                document.getElementById('t-step2').innerText = data.step2;
+                document.getElementById('t-step3').innerText = data.step3;
+                
+                document.getElementById('t-foot-verse').innerText = data.footVerse;
+                document.getElementById('t-foot-copy').innerHTML = data.footCopy;
+
+                evaluateChecklist();
+            }
+
+            // Dropdown Controls
+            dropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const expanded = dropdownBtn.getAttribute('aria-expanded') === 'true';
+                dropdownBtn.setAttribute('aria-expanded', !expanded);
+                dropdownMenu.classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('.lang-opt').forEach(button => {
+                button.addEventListener('click', () => {
+                    const selectedLang = button.getAttribute('data-lang');
+                    currentLang = selectedLang;
+                    localStorage.setItem('romans-road-lang', selectedLang);
+                    applyLanguage(selectedLang);
+                    dropdownMenu.classList.add('hidden');
+                    dropdownBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.add('hidden');
+                dropdownBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            // --- Checklist Validation Function ---
+            function evaluateChecklist() {
+                const checkedBoxes = document.querySelectorAll('.assurance-checkbox:checked');
+                const data = translations[currentLang];
+
+                if (checkedBoxes.length === 3) {
+                    ctaBtn.disabled = false;
+                    ctaBtn.style.backgroundColor = 'var(--theme-gold)';
+                    ctaBtn.style.color = 'var(--theme-bg)';
+                    ctaBtn.style.cursor = 'pointer';
+                    ctaBtn.innerText = data.btnReady;
+                    document.getElementById('prayer-guide').classList.remove('hidden');
+                } else {
+                    ctaBtn.disabled = true;
+                    ctaBtn.style.backgroundColor = '';
+                    ctaBtn.style.color = '';
+                    ctaBtn.style.cursor = '';
+                    ctaBtn.innerText = data.btnWait;
+                    document.getElementById('prayer-guide').classList.add('hidden');
+                }
+            }
+
+            checkboxes.forEach(box => box.addEventListener('change', evaluateChecklist));
+
+            document.getElementById('cta-btn').addEventListener('click', () => {
+                const checkedBoxes = document.querySelectorAll('.assurance-checkbox:checked');
+                if (checkedBoxes.length !== 3) return;
+                document.getElementById('checklist-form').classList.add('hidden');
+                const successOutcome = document.getElementById('success-outcome');
+                successOutcome.classList.remove('hidden');
+                successOutcome.focus();
+            });
+
+            // --- Theme Selection Persistence ---
+            const localStoredTheme = localStorage.getItem('romans-road-theme');
+            if (localStoredTheme === 'light') {
+                body.classList.add('light-theme');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('light-theme');
+                if (body.classList.contains('light-theme')) {
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                    localStorage.setItem('romans-road-theme', 'light');
+                } else {
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                    localStorage.setItem('romans-road-theme', 'dark');
+                }
+            });
+
+            // --- Scroll Progress Bar Tracker ---
+            function updateProgress() {
+                const stops = document.querySelectorAll('.roadmap-stop');
+                let completedStops = 0;
+                stops.forEach((stop) => {
+                    const rect = stop.getBoundingClientRect();
+                    if (rect.top < window.innerHeight / 1.5) completedStops++;
+                });
+                const percentage = Math.round((completedStops / 6) * 100);
+                document.getElementById('scroll-progress-bar').style.width = `${percentage}%`;
+                document.getElementById('progress-text').innerText = `Progress: ${percentage}%`;
+            }
+
+            window.addEventListener('scroll', updateProgress, { passive: true });
+            
+            applyLanguage(currentLang);
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
+
